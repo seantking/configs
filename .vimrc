@@ -1,14 +1,74 @@
-map <Cmd-b> :NERDTreeToggle<CR>
-
-call plug#begin()
-Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
+syntax on
+set nu
+call plug#begin('~/.vim/plugged')
+Plug 'tpope/vim-sensible'
+Plug 'junegunn/seoul256.vim'
 Plug 'preservim/nerdtree'
-Plug 'ctrlpvim/ctrlp.vim'
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
+Plug 'crusoexia/vim-monokai'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'itchyny/lightline.vim'
-Plug 'joshdick/onedark.vim'
-Plug 'w0rp/ale'
+Plug 'posva/vim-vue'
+Plug 'pangloss/vim-javascript'
+Plug 'tpope/vim-cucumber'
+Plug 'tomlion/vim-solidity'
 Plug 'rust-lang/rust.vim'
+Plug 'leafgarland/typescript-vim'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'racer-rust/vim-racer'
+Plug 'joshdick/onedark.vim'
+Plug 'sheerun/vim-polyglot'
+Plug 'dyng/ctrlsf.vim'
+Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
+Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 call plug#end()
+
+set background=dark
+syntax on
+colorscheme onedark
+
+syntax enable
+filetype plugin indent on
+autocmd vimenter * NERDTree
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | exe 'cd '.argv()[0] | endif
+map <F2> :echo 'Current time is ' . strftime('%c')<CR>
+map <C-b> :NERDTreeToggle<CR>
+map <C-T> :tabedit<CR>
+map <C-z> :vs<CR>
+map <C-p> :Files<CR>
+map <C-s> :w<CR>
+map <C-q> :q<CR>
+map <C-c> :w !xclip -sel clip<CR><CR>
+nnoremap <C-Left> :tabprevious<CR>
+nnoremap <C-Right> :tabnext<CR>
+
+"show filepath
+set statusline+=%F
+
+
+"CtrlSF
+nmap     <C-F>f <Plug>CtrlSFPrompt
+vmap     <C-F>f <Plug>CtrlSFVwordPath
+vmap     <C-F>F <Plug>CtrlSFVwordExec
+nmap     <C-F>n <Plug>CtrlSFCwordPath
+nmap     <C-F>p <Plug>CtrlSFPwordPath
+nnoremap <C-F>o :CtrlSFOpen<CR>
+nnoremap <C-F>t :CtrlSFToggle<CR>
+inoremap <C-F>t <Esc>:CtrlSFToggle<CR>
+
+nnoremap <c-s> :w<CR> 
+inoremap <c-s> <Esc>:w<CR>l  
+vnoremap <c-s> <Esc>:w<CR>  
+
+"Go-vim
+nmap <C-@> <Esc>:GoDef<Enter>
+
+"Open NERDTree if no files specified
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
 " history
 set history=700
@@ -86,7 +146,7 @@ augroup last_edit
 augroup END
 
 " Close nerdtree after a file is selected
-let NERDTreeQuitOnOpen = 1
+"let NERDTreeQuitOnOpen = 1
 
 function! IsNERDTreeOpen()
   return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
@@ -101,35 +161,42 @@ function! ToggleFindNerd()
 endfunction
 
 " If nerd tree is closed, find current file, if open, close it
-nmap <silent> <leader>f <ESC>:call ToggleFindNerd()<CR>
-nmap <silent> <leader>F <ESC>:NERDTreeToggle<CR>
+"nmap <silent> <leader>f <ESC>:call ToggleFindNerd()<CR>
+"nmap <silent> <leader>F <ESC>:NERDTreeToggle<CR>
 
-set statusline=%f\ %h%w%m%r\ %=%(%l,%c%V\ %=\ %P%)
+nnoremap gp :silent %!yarn prettier --stdin-filepath %<CR>
+let g:coc_disable_startup_warning = 1
 
-" Ale syntax checking
-let g:ale_rust_cargo_use_check = 1
-" use Ctrl-k and Ctrl-j to jump up and down between errors
-nmap <silent> <C-k> <Plug>(ale_previous_wrap)
-nmap <silent> <C-j> <Plug>(ale_next_wrap)
+let NERDTreeShowHidden=1
 
-syntax on
-colorscheme onedark
-set laststatus=2
-if !has('gui_running')
-  set t_Co=256
-endif
-set noshowmode
-let g:lightline = {
-      \ 'colorscheme': 'onedark',
-      \ }
-             
-let g:onedark_color_overrides = {
-      \ "black": {"gui": "#2F343F", "cterm": "235", "cterm16": "0" },
-      \"purple": { "gui": "#C678DF", "cterm": "170", "cterm16": "5" }
-      \}
+function! FZFOpen(command_str)
+  if (expand('%') =~# 'NERD_tree' && winnr('$') > 1)
+    exe "normal! \<c-w>\<c-w>"
+  endif
+  exe 'normal! ' . a:command_str . "\<cr>"
+endfunction
 
-cd ~/documents/projects/
-map <F2> :NERDTreeToggle<CR>
-" open Nerd Tree in folder of file in active buffer
-map <Leader>nt :NERDTree %:p:h<CR>
-let g:rustfmt_autosave = 1
+nnoremap <silent> <C-p> :call FZFOpen(':Files')<CR>
+
+au filetype go inoremap <buffer> . .<C-x><C-o>
+
+" Run :GoBuild or :GoTestCompile based on the go file
+function! s:build_go_files()
+  let l:file = expand('%')
+  if l:file =~# '^\f\+_test\.go$'
+    call go#test#Test(0, 1)
+  elseif l:file =~# '^\f\+\.go$'
+    call go#cmd#Build(0)
+  endif
+endfunction
+
+let g:go_fmt_autosave = 1
+let g:go_fmt_command = "goimports"    " Run goimports along gofmt on each save
+let g:go_auto_type_info = 1           " Automatically get signature/type info for object under cursor     
+
+" Map keys for most used commands.
+" Ex: `\b` for building, `\r` for running and `\t` for running test.
+autocmd FileType go nmap <leader>b :<C-u>call <SID>build_go_files()<CR>
+autocmd FileType go nmap <leader>r  <Plug>(go-run)
+autocmd FileType go nmap <leader>t  <Plug>(go-test)
+
