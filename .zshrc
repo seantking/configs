@@ -108,13 +108,14 @@ export FZF_DEFAULT_COMMAND="find -L"
 alias vimrc="vim ~/.vimrc"
 alias zshrc="vim ~/.zshrc"
 export NVM_DIR="~/.nvm"
-alias ica-d="~/git/poc/v2/ica"
+alias ica-d="~/git/interchain-accounts"
 alias notes="/home/sean/git/sean/notes"
-alias ibc-go="~/git/ibc-go/ibc-go"
+alias ibc-go="~/git/ibc-go"
 export PATH="$HOME/.cargo/bin:$PATH"
 alias hermes="/home/sean/git/cosmos/r-relayer/ibc-rs/target/debug/hermes"
 # enable control-s and control-q
 stty start undef
 stty stop undef
 setopt noflowcontrol
+
 
